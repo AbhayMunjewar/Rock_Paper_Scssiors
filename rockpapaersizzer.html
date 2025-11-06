@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rock Paper Scissors</title>
+  <style>
+    /* 🎨 General Styling */
+    body {
+      background: radial-gradient(circle at top, #0f2027, #203a43, #2c5364);
+      color: #f8f8f8;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: #ffeb3b;
+      text-shadow: 0 0 20px #ffeb3b;
+      margin-bottom: 30px;
+    }
+
+    /* 🎮 Game Buttons */
+    .move-button {
+      background: transparent;
+      border: 3px solid #ffeb3b;
+      border-radius: 50%;
+      margin: 15px;
+      padding: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 235, 59, 0.4);
+    }
+
+    .move-button:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 25px #ffeb3b;
+    }
+
+    .move-icon {
+      height: 100px;
+      width: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #111;
+    }
+
+    /* 🏆 Score + Result */
+    .result {
+      margin-top: 30px;
+      font-size: 1.8rem;
+      color: #00e676;
+      font-weight: bold;
+      text-shadow: 0 0 10px #00e676;
+    }
+
+    .js-move {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #f8f8f8;
+    }
+
+    .js-score {
+      margin-top: 15px;
+      font-size: 1.3rem;
+      color: #03a9f4;
+      font-weight: 600;
+    }
+
+    /* 🔁 Reset Button */
+    .resetbutton {
+      margin-top: 40px;
+      background-color: #ffeb3b;
+      color: #000;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(255, 235, 59, 0.4);
+    }
+
+    .resetbutton:hover {
+      background-color: #fff176;
+      box-shadow: 0 0 25px #ffeb3b;
+      transform: scale(1.1);
+    }
+
+    /* 🌀 Animation when showing result */
+    .result {
+      animation: glow 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #00e676; }
+      to { text-shadow: 0 0 20px #76ff03; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock Paper Scissors</h1>
+
+  <!-- Player Move Buttons -->
+  <div>
+    <button onclick="answer('rock')" class="move-button">
+      <img src="./rock.jpeg" alt="rock" class="move-icon">
+    </button>
+    <button onclick="answer('paper')" class="move-button">
+      <img src="./paper.jpeg" alt="paper" class="move-icon">
+    </button>
+    <button onclick="answer('scissors')" class="move-button">
+      <img src="./scissors.jpeg" alt="scissors" class="move-icon">
+    </button>
+  </div>
+
+  <p class="js-result result"></p>
+  <p class="js-move"></p>
+  <p class="js-score"></p>
+
+  <button onclick="resetScore()" class="resetbutton">Reset Score</button>
+
+  <script>
+    let score = JSON.parse(localStorage.getItem('score')) || {
+      wins: 0,
+      losses: 0,
+      tie: 0
+    };
+
+    updateScoreElement();
+
+    function answer(playermove) {
+      const computermove = selectByComputer();
+      let result = '';
+
+      if (playermove === computermove) result = 'Tie';
+      else if (
+        (playermove === 'rock' && computermove === 'scissors') ||
+        (playermove === 'paper' && computermove === 'rock') ||
+        (playermove === 'scissors' && computermove === 'paper')
+      ) result = 'You win';
+      else result = 'You lose';
+
+      if (result === 'You win') score.wins++;
+      else if (result === 'You lose') score.losses++;
+      else score.tie++;
+
+      localStorage.setItem('score', JSON.stringify(score));
+      updateScoreElement();
+      showResult(result, playermove, computermove);
+    }
+
+    function selectByComputer() {
+      const randomnumber = Math.random();
+      if (randomnumber < 1 / 3) return 'rock';
+      else if (randomnumber < 2 / 3) return 'paper';
+      return 'scissors';
+    }
+
+    function showResult(result, player, computer) {
+      document.querySelector('.js-result').innerHTML = `${result}!`;
+      document.querySelector('.js-move').innerHTML = `
+        You <img src="./${player}.jpeg" class="move-icon" alt="">
+        <img src="./${computer}.jpeg" class="move-icon" alt=""> Computer
+      `;
+    }
+
+    function updateScoreElement() {
+      document.querySelector('.js-score').innerHTML = 
+        `Wins: ${score.wins} | Losses: ${score.losses} | Ties: ${score.tie}`;
+    }
+
+    function resetScore() {
+      score = { wins: 0, losses: 0, tie: 0 };
+      localStorage.removeItem('score');
+      updateScoreElement();
+      document.querySelector('.js-result').textContent = '';
+      document.querySelector('.js-move').textContent = '';
+    }
+  </script>
+</body>
+</html>
